@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Middleware", "Middleware\Mi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApp", "WebApp\WebApp.csproj", "{E27A1CC1-E18F-4374-91AB-E9EB28CF9B5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MoviesAPI", "MoviesAPI\MoviesAPI.csproj", "{7E58D31F-2333-4C36-982F-EA8EB9142ED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MoviesAPI", "MoviesAPI\MoviesAPI.csproj", "{7E58D31F-2333-4C36-982F-EA8EB9142ED4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WatchlistAPI", "WatchlistAPI\WatchlistAPI.csproj", "{8CA1922B-2F0C-42A6-9154-4899440C7BC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{7E58D31F-2333-4C36-982F-EA8EB9142ED4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E58D31F-2333-4C36-982F-EA8EB9142ED4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E58D31F-2333-4C36-982F-EA8EB9142ED4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CA1922B-2F0C-42A6-9154-4899440C7BC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CA1922B-2F0C-42A6-9154-4899440C7BC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CA1922B-2F0C-42A6-9154-4899440C7BC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CA1922B-2F0C-42A6-9154-4899440C7BC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
