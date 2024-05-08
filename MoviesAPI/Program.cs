@@ -1,15 +1,33 @@
-using FootballAPI.Models;
+using MoviesAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using Middleware;
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddJwt(builder.Configuration);
+
 builder.Services.AddControllers();
-builder.Services.AddDbContext<MovieContext>(opt =>opt.UseInMemoryDatabase("MovieList"));
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (builder.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-app.UseHttpsRedirection();
+
+app.UseCors(policy => policy.WithOrigins("http://localhost:5255")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
+
+app.UseAuthentication();
+
 app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
