@@ -1,0 +1,32 @@
+{
+  "profiles": {
+    "IdentityAPI": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Database__ConnectionString": "mongodb+srv://kgrech:eGOU1LzUg7cEMb2K@homeassign.vzhjtbg.mongodb.net/?retryWrites=true&w=majority&appName=HomeAssign"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5252"
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "launchUrl": "swagger",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:57418",
+      "sslPort": 0
+    }
+  }
+}
