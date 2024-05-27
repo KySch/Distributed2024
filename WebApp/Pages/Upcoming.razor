@@ -1,0 +1,55 @@
+﻿@page "/upcoming"
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject HttpClient Http
+@inject ApiAuthenticationStateProvider ApiAuthenticationStateProvider
+
+<PageTitle>Upcoming</PageTitle>
+
+<h3>Upcoming</h3>
+
+<div class="upcoming-container">
+    <input type="text" @bind="inputText" placeholder="Enter Movie Id..." />
+    <button class="btn-submit" @onclick="SubmitText">Submit</button>
+</div>
+
+@code {
+    private string inputText = string.Empty;
+
+    private async Task SubmitText()
+    {
+        var upcomingMovie = new
+            {
+                Id = Guid.NewGuid(),
+                UpcomingMovie = inputText 
+            };
+
+        await Http.PostAsJsonAsync("http://localhost:5003/gateway/Upcoming/newUpcoming", upcomingMovie);
+    }
+}
+
+<style>
+    .upcoming-container {
+        margin-top: 20px;
+    }
+
+    input[type="text"] {
+        padding: 10px;
+        margin-right: 10px;
+        width: 200px;
+    }
+
+    .btn-submit {
+        padding: 10px 20px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+</style>

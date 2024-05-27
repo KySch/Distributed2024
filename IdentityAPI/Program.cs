@@ -7,12 +7,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<DatabaseSettings>(
 	builder.Configuration.GetSection("Database"));
 
+builder.Services.Configure<GCPSettings>(
+	builder.Configuration.GetSection("GCP"));
+
 builder.Services.AddJwt(builder.Configuration);
 
 builder.Services.AddTransient<IEncryptor, Encryptor>();
 
 builder.Services.AddSingleton<UserService>();
 
+builder.Services.AddSingleton<NotificationsService>();
+
+builder.Services.AddSingleton<PublisherService>();
+
+builder.Services.AddHostedService<SubscriberService>();
 // Add services to the container.
 
 builder.Services.AddControllers();

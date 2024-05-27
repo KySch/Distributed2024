@@ -1,13 +1,14 @@
 ﻿@page "/fetchdata"
 @inject HttpClient Http
+@inject ApiAuthenticationStateProvider ApiAuthenticationStateProvider
 
-<PageTitle>Weather forecast</PageTitle>
+<PageTitle>Notifications</PageTitle>
 
-<h1>Weather forecast</h1>
+<h1>Notifications</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (notifications == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -16,20 +17,18 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>Id</th>
+                <th>User Id</th>
+                <th>Description</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var notificaiton in notifications)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@notificaiton.Id</td>
+                    <td>@notificaiton.UserId</td>
+                    <td>@notificaiton.description</td>
                 </tr>
             }
         </tbody>
@@ -37,21 +36,42 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private Notifications[]? notifications;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("http://localhost:5111/WeatherForecast");
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+
+        if (!string.IsNullOrEmpty(userIdClaim))
+        {
+            try
+            {
+                var requestData = new Notifications
+                {
+                    Id = userIdClaim
+                };
+
+                var jsonContent = JsonContent.Create(requestData);
+                var response = await Http.PostAsync("http://localhost:5003/gateway/Notifications/getnotifications", jsonContent);
+
+                notifications = await response.Content.ReadFromJsonAsync<Notifications[]>();
+
+            }
+            catch (Exception ex)
+            {
+                notifications = null; // Handle the case where the request fails
+            }
+        }
     }
 
-    public class WeatherForecast
+    public class Notifications
     {
-        public DateTime Date { get; set; }
+        public string? Id { get; set; }
+        public string? UserId { get; set; }
+        public string? description { get; set; }
 
-        public int TemperatureC { get; set; }
-
-        public string? Summary { get; set; }
-
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
     }
 }

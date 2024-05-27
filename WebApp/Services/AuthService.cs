@@ -21,7 +21,7 @@ namespace WebApp.Services
 
 		public async Task<RegisterResult> Register(RegisterModel registerModel)
 		{
-			var result = await _httpClient.PostAsJsonAsync("api/user/register", registerModel);
+			var result = await _httpClient.PostAsJsonAsync("http://localhost:5003/gateway/User/register", registerModel);
 
 			RegisterResult registerResult = new RegisterResult();
 
@@ -32,7 +32,7 @@ namespace WebApp.Services
 
 		public async Task<LoginResult> Login(LoginModel loginModel)
 		{
-			var result = await _httpClient.PostAsJsonAsync("api/user/login", loginModel);
+			var result = await _httpClient.PostAsJsonAsync("http://localhost:5003/gateway/User/login", loginModel);
 
 			LoginResult loginResult = new LoginResult();
 
@@ -47,7 +47,7 @@ namespace WebApp.Services
 
 			await _localStorage.SetItemAsync("authToken", loginResult.Token);
 
-			((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
+            ((ApiAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsAuthenticated(loginModel.Email);
 
 			_httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", loginResult.Token);
 

@@ -1,5 +1,3 @@
-using MoviesAPI.Models;
-using Microsoft.EntityFrameworkCore;
 using Middleware;
 
 
@@ -20,6 +18,10 @@ if (builder.Environment.IsDevelopment())
 }
 
 app.UseCors(policy => policy.WithOrigins("http://localhost:5255")
+    .AllowAnyMethod()
+    .AllowAnyHeader()
+);
+app.UseCors(policy => policy.WithOrigins("http://localhost:5252")
     .AllowAnyMethod()
     .AllowAnyHeader()
 );

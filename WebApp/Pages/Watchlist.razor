@@ -1,0 +1,152 @@
+﻿@page "/watchlist"
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using WebApp.Models;
+@inject HttpClient Http
+@using System.Security.Claims
+@inject ApiAuthenticationStateProvider ApiAuthenticationStateProvider
+@inject ILogger<Watchlist> Logger
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Watchlist</PageTitle>
+
+<h1>My Watchlist</h1>
+
+@if (Watchlists == null)
+{
+    <p><em>Loading...</em></p>
+}
+else if (Watchlists.Count == 0)
+{
+    <p><em>No movies in your watchlist.</em></p>
+}
+else
+{
+    <div class="movies-container">
+        @foreach (var Watchlist in Watchlists)
+        {
+            <div class="movie-card">
+                <h5>Title: @Watchlist.MovieId</h5>
+                <p>ID: @Watchlist.Id</p>
+                <button class="btn" @onclick="() => RemoveWatchlist(Watchlist)">Remove</button>
+            </div>
+        }
+    </div>
+}
+
+<style>
+    .movies-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .movie-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        width: 200px;
+        text-align: center;
+    }
+</style>
+
+@code {
+    private List<Models.Watchlist>? Watchlists;
+    private Movie? data;
+
+    public class MovieData
+    {
+        public string? Id { get; set; }
+        public string? MovieId { get; set; }
+        public string? Title { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync started for Watchlist.");
+        await LoadWatchlistAsync();
+    }
+
+    private async Task RemoveWatchlist(Models.Watchlist Watchlist)
+    {
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+
+        var removeWatchlist = new
+        {
+            id = Watchlist.Id,
+            UserId = userIdClaim,
+            MovieId = Watchlist.MovieId
+        };
+
+        JsonContent content = JsonContent.Create(removeWatchlist);
+        await Http.PostAsync($"http://localhost:5003/gateway/Watchlists/removeWatchlist", content);
+
+        // Refresh the watchlist after removal
+        await LoadWatchlistAsync();
+    }
+
+    private async Task LoadWatchlistAsync()
+    {
+        Logger.LogInformation("started LoadWatchlistAsync.");
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+        Console.WriteLine($"User ID from claim: {userIdClaim}");
+        try
+        {
+            Logger.LogInformation("In try Catch.");
+            JsonContent content = JsonContent.Create(new { userId = userIdClaim });
+
+            string requestUrl = $"http://localhost:5003/gateway/Watchlists/getWatchlist";
+            var response = await Http.PostAsync(requestUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                Logger.LogInformation("Watchlist response good.");
+                Watchlists = await response.Content.ReadFromJsonAsync<List<Models.Watchlist>>();
+                if (Watchlists != null)
+                {
+                    foreach (var Watchlist in Watchlists)
+                    {
+                        var moviejson = new Movie
+                            {
+                                Id = Watchlist.MovieId
+                            };
+                        var moviejsonContent = JsonContent.Create(moviejson);
+
+                        var movieresponse = await Http.PostAsync("http://localhost:5003/gateway/Movies/byId", moviejsonContent);
+
+                        if (movieresponse.IsSuccessStatusCode)
+                        {
+                            Logger.LogInformation("Movie Response good.");
+                            var movieDetails = await movieresponse.Content.ReadFromJsonAsync<Movie>();
+                            if (movieDetails != null)
+                            {
+                                Watchlist.MovieId = movieDetails.Title;
+                            }
+                        }
+                        else
+                        {
+                            Logger.LogError($"Failed to load movie details for MovieId {Watchlist.MovieId}: {movieresponse.ReasonPhrase}");
+                        }
+                    }
+                }
+                Logger.LogInformation("Returning watchlists." + Watchlists);
+            }
+            else
+            {
+                Logger.LogError($"Failed to load watchlist: {response.ReasonPhrase}");
+                Watchlists = new List<Models.Watchlist>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogInformation("Caught");
+            Logger.LogError($"Failed to load watchlist: {ex.Message}");
+            Watchlists = new List<Models.Watchlist>();
+        }
+    }
+}

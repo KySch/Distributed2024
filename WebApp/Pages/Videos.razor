@@ -1,0 +1,296 @@
+﻿@page "/videos"
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject HttpClient Http
+@inject ApiAuthenticationStateProvider ApiAuthenticationStateProvider
+@inject ILogger<Videos> Logger
+@inject NavigationManager NavigationManager
+
+<PageTitle>My Videos</PageTitle>
+
+<h1>My Videos</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+<div class="selection-container">
+    <div class="select-type">
+        <h3>Select Type</h3>
+        <input type="radio" id="movie" name="type" value="movie" @onchange="OnTypeChanged" checked="@isMoviesSelected" />
+        <label for="movie">Movies</label>
+        <input type="radio" id="tvSeries" name="type" value="tvSeries" @onchange="OnTypeChanged" checked="@isTVShowsSelected" />
+        <label for="tvSeries">TV Shows</label>
+    </div>
+
+    <div class="select-genre">
+        <h3>Select Genre</h3>
+        <div class="genre-grid">
+            @foreach (var genre in genres)
+            {
+                <div class="genre-item">
+                    <input type="radio" id="@genre" name="genre" value="@genre" @onchange="OnGenreChanged" checked="@(selectedGenre == genre)" />
+                    <label for="@genre">@genre</label>
+                </div>
+            }
+        </div>
+        <button class="btn-submit" @onclick="PerformSearch">Submit</button>
+    </div>
+</div>
+
+<div class="videos-show" style="@(!showConfirmation ? "" : "display:none;")">
+    @if (orderData == null)
+    {
+        if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">
+                <p>@errorMessage</p>
+            </div>
+        }
+        else
+        {
+            <p><em>Loading...</em></p>
+        }
+    }
+    else if (orderData.Count == 0)
+    {
+        <div class="alert alert-info">
+            <p>No videos found for the selected type and genre.</p>
+        </div>
+    }
+    else
+    {
+        <div class="movies-container">
+            @foreach (var order in orderData)
+            {
+                <div class="movie-card">
+                    <h5>@order.Title</h5>
+                    <p>ID: @order.Id</p>
+                    <button class="btn" @onclick="() => ConfirmPurchase(order)">Purchase</button>
+                    <button class="btn" @onclick="() => PerformAddToWatchlist(order)">Add to Watchlist</button>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+<div class="validate-selection" style="@(!showConfirmation ? "display:none;" : "")">
+    <p>Do you want to purchase <strong>@confirmingOrder?.Title</strong>?</p>
+    <button class="btn" @onclick="() => ExecutePurchase(confirmingOrder)">Yes</button>
+    <button class="btn" @onclick="CancelPurchase">No</button>
+</div>
+
+
+@if (isLoading)
+{
+    <div class="loading-container">
+        <p>Loading...</p>
+    </div>
+}
+
+<style>
+    .selection-container, .loading-container {
+        margin-bottom: 20px;
+    }
+
+    .select-type, .select-genre {
+        margin-bottom: 10px;
+    }
+
+    .btn-submit, .btn {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        margin-top: 5px;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .btn-submit:hover, .btn:hover {
+            background-color: #0056b3;
+        }
+
+    .movies-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .movie-card {
+        border: 1px solid #ddd;
+        padding: 10px;
+        width: 200px;
+        text-align: center;
+    }
+
+    .genre-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .genre-item {
+        flex-grow: 1;
+        min-width: 150px;
+    }
+
+    .loading-container {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        padding: 20px;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        z-index: 1000;
+    }
+
+    .alert {
+        padding: 10px;
+        background-color: #f44336; /* Red for error */
+        color: white;
+        margin-bottom: 15px;
+    }
+
+    .alert-info {
+        background-color: #2196F3; /* Blue for info */
+    }
+
+</style>
+
+@code {
+    private List<OrderData?> orderData;
+    private OrderData? confirmingOrder;
+    private bool showConfirmation = false;
+    private bool isLoading = false;
+    private string selectedType = "movie";
+    private string selectedGenre = "Action";
+    private bool isMoviesSelected = true;
+    private bool isTVShowsSelected = false;
+    private readonly List<string> genres = new()
+    {
+        "Action", "Adventure", "Animation", "Biography", "Comedy", "Crime", "Documentary",
+        "Drama", "Family", "Fantasy", "Film-Noir", "History", "Horror", "Music", "Musical",
+        "Mystery", "Romance", "Sci-Fi", "Short", "Sport", "Thriller", "War", "Western"
+    };
+
+    public class OrderData
+    {
+        public string? Id { get; set; }
+        public string? Title { get; set; }
+        public string? Type { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialization logic here
+    }
+
+    private void OnTypeChanged(ChangeEventArgs e)
+    {
+        selectedType = e.Value.ToString();
+        isMoviesSelected = selectedType == "movies";
+        isTVShowsSelected = selectedType == "tvSeries";
+    }
+
+    private void OnGenreChanged(ChangeEventArgs e)
+    {
+        selectedGenre = e.Value.ToString();
+    }
+
+    private string errorMessage;  // Add a variable to store the error message
+
+    private async Task PerformSearch()
+    {
+        try
+        {
+            var requestData = new
+                {
+                    Type = selectedType,
+                    Genre = selectedGenre
+                };
+
+             var jsonContent = JsonContent.Create(requestData);
+            var response = await Http.PostAsync("http://localhost:5003/gateway/Movies/search", jsonContent);
+
+            orderData = await response.Content.ReadFromJsonAsync<List<OrderData>>();
+   
+        }
+        catch (Exception ex)
+        {
+            orderData = null; // Clear any existing data
+            errorMessage = "An unexpected error occurred."; // Handle unexpected errors
+            Logger.LogError("Unexpected error fetching videos: {Message}", ex.Message);
+        }
+    }
+
+    private void ConfirmPurchase(OrderData order)
+    {
+        confirmingOrder = order;
+        showConfirmation = true;
+    }
+
+    private async Task ExecutePurchase(OrderData? order)
+    {
+        if (order == null) return;
+
+        isLoading = true; // Start loading
+        showConfirmation = false;
+
+        await PerformPurchase(order);
+
+        isLoading = false; // Stop loading after the task is done
+        NavigationManager.NavigateTo("http://localhost:5255/userorders");
+    }
+
+    private void CancelPurchase()
+    {
+        showConfirmation = false;
+    }
+
+    private async Task PerformPurchase(OrderData order)
+    {
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+
+        var newPayment = new
+        {
+            movieId = order.Id,
+            userId = userIdClaim
+        };
+
+        JsonContent content = JsonContent.Create(newPayment);
+        await Http.PostAsync($"http://localhost:5003/gateway/Payments/newPayment", content);
+
+        // Wait for 2 seconds before redirecting
+        await Task.Delay(2000);
+
+        // Redirect to user orders page
+        NavigationManager.NavigateTo("http://localhost:5255/userorders");
+    }
+
+    private async Task PerformAddToWatchlist(OrderData order)
+    {
+        isLoading = true; // Start loading
+
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+
+        var newWatchlist = new
+        {
+            movieId = order.Id,
+            userId = userIdClaim
+        };
+
+        JsonContent content = JsonContent.Create(newWatchlist);
+        await Http.PostAsync($"http://localhost:5003/gateway/Watchlists/newWatchlist", content);
+
+        isLoading = false; // Stop loading after the task is done
+        NavigationManager.NavigateTo("http://localhost:5255/watchlist");
+    }
+}

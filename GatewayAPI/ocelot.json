@@ -1,0 +1,96 @@
+{
+  "GlobalConfiguration": {
+
+    "BaseUrl": "http://localhost:5003"
+
+  },
+  "Routes": [
+
+    {
+      "UpstreamPathTemplate": "/gateway/WatchLists/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/WatchLists/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5032
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Payments/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/Payments/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5030
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Upcoming/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/Upcoming/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5252
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/User/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/User/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5252
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Notifications/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/Notifications/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5252
+        }
+      ]
+    },
+
+    {
+      "UpstreamPathTemplate": "/gateway/Orders/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/Orders/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5172
+        }
+      ]
+    },
+    {
+      "UpstreamPathTemplate": "/gateway/Movies/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post" ],
+      "DownstreamPathTemplate": "/api/Movies/{everything}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 5174
+        }
+      ]
+    }
+  ]
+
+}

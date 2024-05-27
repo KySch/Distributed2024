@@ -32,7 +32,7 @@ namespace WebApp
 
 		public void MarkUserAsAuthenticated(string email)
 		{
-			var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
+            var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, email) }, "apiauth"));
 			var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
 			NotifyAuthenticationStateChanged(authState);
 		}

@@ -1,0 +1,32 @@
+{
+  "profiles": {
+    "OrdersAPI": {
+      "commandName": "Project",
+      "launchBrowser": false,
+      "launchUrl": "api/orders",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Database__ConnectionString": "mongodb+srv://admin:123@homeassign.vzhjtbg.mongodb.net/?retryWrites=true&w=majority&appName=HomeAssign"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "http://localhost:5172"
+    },
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": false,
+      "launchUrl": "api/orders",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Production"
+      }
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:20222",
+      "sslPort": 0
+    }
+  }
+}

@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://localhost:13473",
+      "applicationUrl": "http://localhost:42388",
       "sslPort": 0
     }
   },
@@ -12,19 +12,19 @@
     "MoviesAPI": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": true,
-      "launchUrl": "swagger",
-      "applicationUrl": "http://localhost:5059",
+      "launchBrowser": false,
+      "launchUrl": "api/movies",
+      "applicationUrl": "http://localhost:5174",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "swagger",
+      "launchBrowser": false,
+      "launchUrl": "api/movies",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     }
   }

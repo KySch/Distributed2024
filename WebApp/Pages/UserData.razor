@@ -1,0 +1,80 @@
+﻿@page "/userdata"
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject HttpClient Http
+@inject ApiAuthenticationStateProvider ApiAuthenticationStateProvider
+@inject ILogger<UserData> Logger
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+<PageTitle>My User</PageTitle>
+
+<h1>My User</h1>
+
+<p>This component demonstrates fetching data from the server.</p>
+
+@if (userData == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@userData.FirstName</td>
+                <td>@userData.LastName</td>
+                <td>@userData.Email</td>
+            </tr>
+        </tbody>
+    </table>
+}
+
+@code {
+    private UserDatas? userData;
+
+    public class UserDatas
+    {
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public string? Email { get; set; }
+        public string? Password { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Logger.LogInformation("OnInitializedAsync started.");
+        string email = await localStorage.GetItemAsStringAsync("email");
+        var authstate = await ApiAuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authstate.User;
+
+        var userIdClaim = user.FindFirst(c => c.Type == "userId")?.Value;
+
+        Logger.LogInformation($"User ID: {userIdClaim}");
+
+        if (!string.IsNullOrEmpty(userIdClaim))
+        {
+            try
+            {
+                userData = await Http.GetFromJsonAsync<UserDatas>($"http://localhost:5003/gateway/User/getuserdetails?userId={userIdClaim}");
+                Logger.LogInformation("Data fetched successfully.");
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError($"Error fetching user data: {ex.Message}");
+                userData = null; // Handle the case where the request fails
+            }
+        }
+        else
+        {
+            Logger.LogWarning("Email is null or empty.");
+        }
+    }
+}

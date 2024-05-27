@@ -32,6 +32,8 @@ namespace IdentityAPI.Controllers
 
 			var user = new User
 			{
+                FirstName = userDTO.FirstName,
+				LastName = userDTO.LastName,
 				Email = userDTO.Email
 			};
 
@@ -43,16 +45,16 @@ namespace IdentityAPI.Controllers
 		}
 
 		[HttpPost("login")]
-		public async Task<ActionResult> Login([FromBody] UserDTO userDTO)
+		public async Task<ActionResult> Login([FromBody] UserLogin userLogin)
 		{
-			var u = await _userService.GetByEmailAsync(userDTO.Email);
+			var u = await _userService.GetByEmailAsync(userLogin.Email);
 
 			if(u == null)
 			{
 				return BadRequest("User not found");
 			}
 
-			var isValid = u.ValidatePassword(userDTO.Password, _encryptor);
+			var isValid = u.ValidatePassword(userLogin.Password, _encryptor);
 
 			if(!isValid)
 			{
@@ -85,7 +87,41 @@ namespace IdentityAPI.Controllers
 			return Ok(userId);
 		}
 
+        [HttpGet("getuserdetails")]
+        public async Task<ActionResult> GetUserDetails([FromQuery(Name = "userId")] string userID)
+        {
+            var u = await _userService.GetByIdAsync(userID);
 
+            if (u == null)
+            {
+                return BadRequest("User not found");
+            }
 
-	}
+			var details = new UserDTO
+			{ 
+			  FirstName = u.FirstName,
+              LastName = u.LastName,
+              Email = u.Email,
+            };
+            return Ok(details);
+        }
+
+        [HttpGet("isadmin")]
+        public async Task<ActionResult> IsAdmin([FromQuery(Name = "userId")] string userID)
+        {
+            var u = await _userService.GetByIdAsync(userID);
+
+            if (u == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var details = new
+            {
+                Admin = u.isAdmin
+            };
+            return Ok(details);
+        }
+
+    }
 }

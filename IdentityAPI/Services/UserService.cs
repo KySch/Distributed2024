@@ -27,10 +27,13 @@ namespace IdentityAPI.Services
 		public async Task<User?> GetAsync(string id) =>
 			await _usersCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-		public async Task<User?> GetByEmailAsync(string email) =>
-			await _usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+		public async Task<User?> GetByIdAsync(string userId) =>
+			await _usersCollection.Find(x => x.Id == userId).FirstOrDefaultAsync();
 
-		public async Task CreateAsync(User newUser) =>
+        public async Task<User?> GetByEmailAsync(string email) =>
+            await _usersCollection.Find(x => x.Email == email).FirstOrDefaultAsync();
+
+        public async Task CreateAsync(User newUser) =>
 			await _usersCollection.InsertOneAsync(newUser);
 
 		public async Task RemoveAsync(string id) =>
